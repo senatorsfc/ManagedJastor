@@ -11,11 +11,12 @@ Class nsDictionaryClass;
 Class nsArrayClass;
 
 - (void)initializeFieldsWithDictionary:(NSDictionary *)dictionary {
-	if (!nsDictionaryClass) nsDictionaryClass = [NSDictionary class];
-	if (!nsArrayClass) nsArrayClass = [NSArray class];
-	
+    if (!nsDictionaryClass) nsDictionaryClass = [NSDictionary class];
+    if (!nsArrayClass) nsArrayClass = [NSArray class];
+    
     for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
         id value = [dictionary valueForKey:key];
+        Class propertyClass = [ManagedJastorRuntimeHelper propertyClassForPropertyName:key ofClass:[self class]];
         
         if (value == [NSNull null] || value == nil) continue;
         
@@ -49,9 +50,13 @@ Class nsArrayClass;
             [self performSelector:sel withObject:childObjects];
             
             continue;
+        }else if(propertyClass == [NSDate class] && [value isKindOfClass:[NSNumber class]]){
+            //Timestamp conversion
+            [self setValue:[NSDate dateWithTimeIntervalSince1970:[value longLongValue]/1000] forKey:key];
+        }else{
+            // handle all others
+            [self setValue:value forKey:key];
         }
-        // handle all others
-        [self setValue:value forKey:key];
     }
     
     id objectIdValue;
@@ -62,49 +67,49 @@ Class nsArrayClass;
         [self setValue:objectIdValue forKey:idPropertyNameOnObject];
     }
 
-	return;	
+    return; 
 }
 
 - (void)dealloc {
-	self.objectId = nil;
-	
-	for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
-		[self setValue:nil forKey:key];
-	}
+    self.objectId = nil;
+    
+    for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
+        [self setValue:nil forKey:key];
+    }
 }
 
 - (void)encodeWithCoder:(NSCoder*)encoder {
-	[encoder encodeObject:self.objectId forKey:idPropertyNameOnObject];
-	for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
-		[encoder encodeObject:[self valueForKey:key] forKey:key];
-	}
+    [encoder encodeObject:self.objectId forKey:idPropertyNameOnObject];
+    for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
+        [encoder encodeObject:[self valueForKey:key] forKey:key];
+    }
 }
 
 - (id)initWithCoder:(NSCoder *)decoder {
-	if ((self = [super init])) {
-		[self setValue:[decoder decodeObjectForKey:idPropertyNameOnObject] forKey:idPropertyNameOnObject];
-		
-		for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
-			id value = [decoder decodeObjectForKey:key];
-			if (value != [NSNull null] && value != nil) {
-				[self setValue:value forKey:key];
-			}
-		}
-	}
-	return self;
+    if ((self = [super init])) {
+        [self setValue:[decoder decodeObjectForKey:idPropertyNameOnObject] forKey:idPropertyNameOnObject];
+        
+        for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
+            id value = [decoder decodeObjectForKey:key];
+            if (value != [NSNull null] && value != nil) {
+                [self setValue:value forKey:key];
+            }
+        }
+    }
+    return self;
 }
 
 - (NSString *)description {
-	NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-	
-	if (self.objectId) [dic setObject:self.objectId forKey:idPropertyNameOnObject];
-	
-	for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
-		id value = [self valueForKey:key];
-		if (value != nil) [dic setObject:value forKey:key];
-	}
-	
-	return [NSString stringWithFormat:@"#<%@: id = %@ %@>", [self class], self.objectId, [dic description]];
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    
+    if (self.objectId) [dic setObject:self.objectId forKey:idPropertyNameOnObject];
+    
+    for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
+        id value = [self valueForKey:key];
+        if (value != nil) [dic setObject:value forKey:key];
+    }
+    
+    return [NSString stringWithFormat:@"#<%@: id = %@ %@>", [self class], self.objectId, [dic description]];
 }
 
 @end
