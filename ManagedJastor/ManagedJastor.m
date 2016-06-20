@@ -7,12 +7,12 @@
 static NSString *idPropertyName = @"id";
 static NSString *idPropertyNameOnObject = @"objectId";
 
-Class nsDictionaryClass;
-Class nsArrayClass;
+Class mnsDictionaryClass;
+Class mnsArrayClass;
 
 - (void)initializeFieldsWithDictionary:(NSDictionary *)dictionary {
-    if (!nsDictionaryClass) nsDictionaryClass = [NSDictionary class];
-    if (!nsArrayClass) nsArrayClass = [NSArray class];
+    if (!mnsDictionaryClass) mnsDictionaryClass = [NSDictionary class];
+    if (!mnsArrayClass) mnsArrayClass = [NSArray class];
     
     for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
         id value = [dictionary valueForKey:key];
@@ -21,7 +21,7 @@ Class nsArrayClass;
         if (value == [NSNull null] || value == nil) continue;
         
         // handle dictionary
-        if ([value isKindOfClass:nsDictionaryClass]) {
+        if ([value isKindOfClass:mnsDictionaryClass]) {
             Class klass = [ManagedJastorRuntimeHelper propertyClassForPropertyName:key ofClass:[self class]];
             NSEntityDescription *entity = [NSEntityDescription entityForName:NSStringFromClass(klass) inManagedObjectContext:self.managedObjectContext];
             ManagedJastor *managedObject = (ManagedJastor*) [[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:self.managedObjectContext];
@@ -29,13 +29,13 @@ Class nsArrayClass;
             value = managedObject;
         }
         // handle array
-        else if ([value isKindOfClass:nsArrayClass]) {
+        else if ([value isKindOfClass:mnsArrayClass]) {
             Class arrayItemType = [[self class] performSelector:NSSelectorFromString([NSString stringWithFormat:@"%@_class", key])];
             
             NSMutableSet *childObjects = [NSMutableSet setWithCapacity:[value count]];
             
             for (id child in value) {
-                if ([[child class] isSubclassOfClass:nsDictionaryClass]) {
+                if ([[child class] isSubclassOfClass:mnsDictionaryClass]) {
                     NSEntityDescription *entity = [NSEntityDescription entityForName:NSStringFromClass(arrayItemType) inManagedObjectContext:self.managedObjectContext];
                     ManagedJastor *managedObject = (ManagedJastor*) [[NSManagedObject alloc] initWithEntity:entity insertIntoManagedObjectContext:self.managedObjectContext];
                     [managedObject initializeFieldsWithDictionary:child];
