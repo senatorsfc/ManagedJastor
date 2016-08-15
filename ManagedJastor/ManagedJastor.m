@@ -32,8 +32,7 @@ Class mnsArrayClass;
         else if ([value isKindOfClass:mnsArrayClass]) {
             Class arrayItemType = [[self class] performSelector:NSSelectorFromString([NSString stringWithFormat:@"%@_class", key])];
             
-            NSMutableSet *childObjects = [NSMutableSet setWithCapacity:[value count]];
-            
+            NSMutableArray* childObjects = [[NSMutableArray alloc] initWithCapacity:[value count]];
             for (id child in value) {
                 if ([[child class] isSubclassOfClass:mnsDictionaryClass]) {
                     NSEntityDescription *entity = [NSEntityDescription entityForName:NSStringFromClass(arrayItemType) inManagedObjectContext:self.managedObjectContext];
@@ -41,15 +40,11 @@ Class mnsArrayClass;
                     [managedObject initializeFieldsWithDictionary:child];
                     [childObjects addObject:managedObject];
                 } else {
-
-                [childObjects addObject:child];
+                    [childObjects addObject:child];
                 }
             }
             
-            SEL sel = NSSelectorFromString([NSString stringWithFormat:@"add%@%@:", [[key substringToIndex:1] uppercaseString], [key substringFromIndex:1]]);
-            [self performSelector:sel withObject:childObjects];
-            
-            continue;
+            [self setValue:[NSArray arrayWithArray:childObjects] forKey:key];
         }else if(propertyClass == [NSDate class] && [value isKindOfClass:[NSNumber class]]){
             //Timestamp conversion
             [self setValue:[NSDate dateWithTimeIntervalSince1970:[value longLongValue]/1000] forKey:key];
