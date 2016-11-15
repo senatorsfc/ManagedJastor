@@ -14,8 +14,10 @@ Class mnsArrayClass;
     if (!mnsDictionaryClass) mnsDictionaryClass = [NSDictionary class];
     if (!mnsArrayClass) mnsArrayClass = [NSArray class];
     
+    NSDictionary *map = [self  map];
+    
     for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
-        id value = [dictionary valueForKey:key];
+        id value = [dictionary valueForKey:[map valueForKey:key]];
         Class propertyClass = [ManagedJastorRuntimeHelper propertyClassForPropertyName:key ofClass:[self class]];
         
         if (value == [NSNull null] || value == nil) continue;
@@ -88,6 +90,46 @@ Class mnsArrayClass;
         }
     }
     return self;
+}
+
+- (NSMutableDictionary *)toDictionary {
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    if (self.objectId) {
+        [dic setObject:self.objectId forKey:idPropertyName];
+    }
+    NSDictionary *map = [self map];
+    
+    for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
+        id value = [self valueForKey:key];
+        if (value && [value isKindOfClass:[ManagedJastor class]]) {
+            [dic setObject:[value toDictionary] forKey:[map valueForKey:key]];
+        } else if (value && [value isKindOfClass:[NSArray class]] && ((NSArray*)value).count > 0) {
+            id internalValue = [value objectAtIndex:0];
+            if (internalValue && [internalValue isKindOfClass:[ManagedJastor class]]) {
+                NSMutableArray *internalItems = [NSMutableArray array];
+                for (id item in value) {
+                    [internalItems addObject:[item toDictionary]];
+                }
+                [dic setObject:internalItems forKey:[map valueForKey:key]];
+            } else {
+                [dic setObject:value forKey:[map valueForKey:key]];
+            }
+        } else if (value && [value isKindOfClass:[NSDate class]]){
+            [dic setObject:value forKey:[NSNumber numberWithLong:([(NSDate *)value timeIntervalSince1970]*1000)]];
+        } else if (value != nil) {
+            [dic setObject:value forKey:[map valueForKey:key]];
+        }
+    }
+    return dic;
+}
+
+- (NSDictionary *)map {
+    NSArray *properties = [ManagedJastorRuntimeHelper propertyNames:[self class]];
+    NSMutableDictionary *mapDictionary = [[NSMutableDictionary alloc] initWithCapacity:properties.count];
+    for (NSString *property in properties) {
+        [mapDictionary setObject:property forKey:property];
+    }
+    return [NSDictionary dictionaryWithDictionary:mapDictionary];
 }
 
 - (NSString *)description {
