@@ -12,6 +12,8 @@
 @interface ManagedJastor : NSManagedObject <NSCoding>
 
 - (void)initializeFieldsWithDictionary:(NSDictionary *)dictionary;
+- (NSMutableDictionary *)toDictionary;
+- (NSDictionary *)map;
 
 @property (nonatomic, retain) NSString *objectId;
 
