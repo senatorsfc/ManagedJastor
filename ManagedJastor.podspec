@@ -5,6 +5,6 @@ Pod::Spec.new do |s|
   s.homepage     = "https://github.com/senatorsfc/ManagedJastor"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.author       = { "Francis Carriere" => "senatorsfc@gmail.com" }
-  s.source       = { :git => "https://github.com/senatorsfc/ManagedJastor.git", :tag => "0.2.3" }
+  s.source       = { :git => "https://github.com/senatorsfc/ManagedJastor.git", :tag => "0.2.4" }
   s.source_files = 'ManagedJastor/*.{h,m}'
 end
