@@ -101,11 +101,11 @@ Class mnsArrayClass;
     
     for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
         id value = [self valueForKey:key];
-        if (value && [value isKindOfClass:[Jastor class]]) {
+        if (value && [value isKindOfClass:[ManagedJastor class]]) {
             [dic setObject:[value toDictionary] forKey:[map valueForKey:key]];
         } else if (value && [value isKindOfClass:[NSArray class]] && ((NSArray*)value).count > 0) {
             id internalValue = [value objectAtIndex:0];
-            if (internalValue && [internalValue isKindOfClass:[Jastor class]]) {
+            if (internalValue && [internalValue isKindOfClass:[ManagedJastor class]]) {
                 NSMutableArray *internalItems = [NSMutableArray array];
                 for (id item in value) {
                     [internalItems addObject:[item toDictionary]];
@@ -114,6 +114,8 @@ Class mnsArrayClass;
             } else {
                 [dic setObject:value forKey:[map valueForKey:key]];
             }
+        } else if (value && [value isKindOfClass:[NSDate class]]){
+            [dic setObject:value forKey:[NSNumber numberWithLong:([(NSDate *)value timeIntervalSince1970]*1000)]];
         } else if (value != nil) {
             [dic setObject:value forKey:[map valueForKey:key]];
         }
