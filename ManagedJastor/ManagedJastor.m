@@ -99,7 +99,7 @@ Class mnsArrayClass;
     }
     NSDictionary *map = [self map];
     
-    for (NSString *key in [JastorRuntimeHelper propertyNames:[self class]]) {
+    for (NSString *key in [ManagedJastorRuntimeHelper propertyNames:[self class]]) {
         id value = [self valueForKey:key];
         if (value && [value isKindOfClass:[Jastor class]]) {
             [dic setObject:[value toDictionary] forKey:[map valueForKey:key]];
@@ -122,7 +122,7 @@ Class mnsArrayClass;
 }
 
 - (NSDictionary *)map {
-    NSArray *properties = [JastorRuntimeHelper propertyNames:[self class]];
+    NSArray *properties = [ManagedJastorRuntimeHelper propertyNames:[self class]];
     NSMutableDictionary *mapDictionary = [[NSMutableDictionary alloc] initWithCapacity:properties.count];
     for (NSString *property in properties) {
         [mapDictionary setObject:property forKey:property];
