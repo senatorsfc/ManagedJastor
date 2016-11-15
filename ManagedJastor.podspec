@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "ManagedJastor"
-  s.version      = "0.2.3"
+  s.version      = "0.2.4"
   s.summary      = "Auto translates NSDictionary to instances of Objective-C NSManagedObject classes, supporting nested types and arrays."
   s.homepage     = "https://github.com/senatorsfc/ManagedJastor"
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
