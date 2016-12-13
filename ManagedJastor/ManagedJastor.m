@@ -49,7 +49,7 @@ Class mnsArrayClass;
             [self setValue:[NSArray arrayWithArray:childObjects] forKey:key];
         }else if(propertyClass == [NSDate class] && [value isKindOfClass:[NSNumber class]]){
             //Timestamp conversion
-            [self setValue:[NSDate dateWithTimeIntervalSince1970:[value doubleValue]] forKey:key];
+            [self setValue:[NSDate dateWithTimeIntervalSince1970:[value longLongValue]/1000] forKey:key];
         }else{
             // handle all others
             [self setValue:value forKey:key];
@@ -115,7 +115,7 @@ Class mnsArrayClass;
                 [dic setObject:value forKey:[map valueForKey:key]];
             }
         } else if (value && [value isKindOfClass:[NSDate class]]){
-            [dic setObject:@([(NSDate *)value timeIntervalSince1970]) forKey:[map valueForKey:key]];
+            [dic setObject:[NSNumber numberWithLong:([(NSDate *)value timeIntervalSince1970]*1000)] forKey:[map valueForKey:key]];
         } else if (value != nil) {
             [dic setObject:value forKey:[map valueForKey:key]];
         }
