@@ -18,8 +18,24 @@ static const char *property_getTypeName(objc_property_t property) {
 
 @implementation ManagedJastorRuntimeHelper
 
-static NSMutableDictionary *propertyListByClass = [[NSMutableDictionary alloc] init];
-static NSMutableDictionary *propertyClassByClassAndPropertyName = [[NSMutableDictionary alloc] init];;
+
+static NSMutableDictionary *listByClass;
++(NSMutableDictionary*)propertyListByClass{
+	static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        listByClass = [[NSMutableDictionary alloc] init];
+    });
+    return listByClass;
+}
+
+static NSMutableDictionary *classByClassAndProperty;
++(NSMutableDictionary*)propertyClassByClassAndPropertyName{
+	static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        classByClassAndProperty = [[NSMutableDictionary alloc] init];
+    });
+    return classByClassAndProperty;
+}
 
 + (NSArray *)propertyNames:(Class)klass {
 	if(!klass) return @[];
@@ -27,7 +43,7 @@ static NSMutableDictionary *propertyClassByClassAndPropertyName = [[NSMutableDic
 	NSString *className = NSStringFromClass(klass);
 	if(!className) return @[];
 
-	NSArray *value = [propertyListByClass objectForKey:className];
+	NSArray *value = [[ManagedJastorRuntimeHelper propertyListByClass] objectForKey:className];
 	if (value) {
 		return value; 
 	}
@@ -44,7 +60,7 @@ static NSMutableDictionary *propertyClassByClassAndPropertyName = [[NSMutableDic
 	}
 	free(properties);
 	
-	[propertyListByClass setObject:propertyNames forKey:className];
+	[[ManagedJastorRuntimeHelper propertyListByClass] setObject:propertyNames forKey:className];
 	
 	return propertyNames;
 }
@@ -53,7 +69,7 @@ static NSMutableDictionary *propertyClassByClassAndPropertyName = [[NSMutableDic
 	NSString *key = [NSString stringWithFormat:@"%@:%@", NSStringFromClass(klass), propertyName];
 	if(!propertyName || !key) return nil;
 
-	NSString *value = [propertyClassByClassAndPropertyName objectForKey:key];	
+	NSString *value = [[ManagedJastorRuntimeHelper propertyClassByClassAndPropertyName] objectForKey:key];	
 	if (value) {
 		return NSClassFromString(value);
 	}
@@ -70,7 +86,7 @@ static NSMutableDictionary *propertyClassByClassAndPropertyName = [[NSMutableDic
 			NSString *className = [NSString stringWithUTF8String:property_getTypeName(property)];
 			if(className){
 				free(properties);
-				[propertyClassByClassAndPropertyName setObject:className forKey:key];
+				[[ManagedJastorRuntimeHelper propertyClassByClassAndPropertyName] setObject:className forKey:key];
 				return NSClassFromString(className);
 			}
 		}
