@@ -18,15 +18,16 @@ static const char *property_getTypeName(objc_property_t property) {
 
 @implementation ManagedJastorRuntimeHelper
 
-static NSMutableDictionary *propertyListByClass;
-static NSMutableDictionary *propertyClassByClassAndPropertyName;
+static NSMutableDictionary *propertyListByClass = [[NSMutableDictionary alloc] init];
+static NSMutableDictionary *propertyClassByClassAndPropertyName = [[NSMutableDictionary alloc] init];;
 
 + (NSArray *)propertyNames:(Class)klass {
-	if (!propertyListByClass) propertyListByClass = [[NSMutableDictionary alloc] init];
-	
+	if(!klass) return @[];
+
 	NSString *className = NSStringFromClass(klass);
+	if(!className) return @[];
+
 	NSArray *value = [propertyListByClass objectForKey:className];
-	
 	if (value) {
 		return value; 
 	}
@@ -49,11 +50,10 @@ static NSMutableDictionary *propertyClassByClassAndPropertyName;
 }
 
 + (Class)propertyClassForPropertyName:(NSString *)propertyName ofClass:(Class)klass {
-	if (!propertyClassByClassAndPropertyName) propertyClassByClassAndPropertyName = [[NSMutableDictionary alloc] init];
-	
 	NSString *key = [NSString stringWithFormat:@"%@:%@", NSStringFromClass(klass), propertyName];
-	NSString *value = [propertyClassByClassAndPropertyName objectForKey:key];
-	
+	if(!propertyName || !key) return nil;
+
+	NSString *value = [propertyClassByClassAndPropertyName objectForKey:key];	
 	if (value) {
 		return NSClassFromString(value);
 	}
